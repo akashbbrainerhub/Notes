@@ -1,0 +1,177 @@
+{% extends "base.html" %} {% block title %}Dashboard | My Notes{% endblock %} {%
+block content %}
+<!-- Professional Dashboard: modern muted colors, no aggressive blue, elegant UX -->
+<nav class="navbar navbar-pro">
+  <div
+    class="container-fluid container-custom px-0 d-flex justify-content-between align-items-center flex-wrap"
+  >
+    <span class="navbar-brand-pro">
+      <i class="fas fa-pen-fancy"></i> Notebook
+    </span>
+    <div class="d-flex align-items-center gap-3">
+      <span class="user-greeting">
+        <i class="far fa-user-circle me-1"></i> {{ user.name }}
+      </span>
+      <a href="/logout" class="btn btn-outline-light-custom">
+        <i class="fas fa-sign-out-alt me-1"></i> Logout
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="container container-custom mt-4 px-3 px-md-0">
+  <!-- Add Note Form Card - refined -->
+  <div class="card card-modern mb-5">
+    <div class="card-body p-4 p-md-5">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i
+          class="fas fa-plus-circle"
+          style="color: var(--primary); font-size: 1.4rem"
+        ></i>
+        <h5 class="card-title mb-0 fw-semibold" style="font-size: 1.2rem">
+          Create new note
+        </h5>
+      </div>
+      <form action="/notes/create" method="post">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label small text-secondary fw-semibold mb-1"
+              >Title</label
+            >
+            <input
+              type="text"
+              name="title"
+              class="form-control form-control-clean"
+              placeholder="e.g., Meeting recap"
+              required
+            />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label small text-secondary fw-semibold mb-1"
+              >Content (optional)</label
+            >
+            <input
+              type="text"
+              name="content"
+              class="form-control form-control-clean"
+              placeholder="Add details or bullet points..."
+            />
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary-pro w-100">
+              <i class="fas fa-save me-1"></i> Add
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notes List Section -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <i class="fas fa-list-ul me-2" style="color: var(--primary)"></i>
+      <span class="fw-semibold" style="font-size: 0.9rem; letter-spacing: 0.3px"
+        >YOUR NOTES</span
+      >
+    </div>
+    {% if notes %}
+    <span
+      class="badge rounded-pill"
+      style="background: #e6edf0; color: #2c5f6e; font-weight: normal"
+      >{{ notes|length }} item{% if notes|length != 1 %}s{% endif %}</span
+    >
+    {% endif %}
+  </div>
+
+  {% if notes %}
+  <div class="notes-feed">
+    {% for note in notes %}
+    <div class="card card-modern mb-3 transition-all {% if note.is_done %}opacity-subtle{% endif %}" style="border-left: 3px solid {% if note.is_done %}#b3bfb3{% else %}#9bb7b0{% endif %};"
+    >
+      <div
+        class="card-body p-3 p-md-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3"
+      >
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            {% if note.is_done %}
+            <i
+              class="fas fa-check-circle"
+              style="color: #7f9e7e; font-size: 1rem"
+            ></i>
+            {% else %}
+            <i
+              class="far fa-circle"
+              style="color: #9bb7b0; font-size: 1rem"
+            ></i>
+            {% endif %}
+            <h6 class="note-title mb-0 {% if note.is_done %}striked{% endif %}">
+              {{ note.title }}
+            </h6>
+          </div>
+          {% if note.content %}
+          <div class="note-content mt-2">
+            <i
+              class="fas fa-align-left me-1"
+              style="font-size: 0.7rem; opacity: 0.6"
+            ></i>
+            {{ note.content }}
+          </div>
+          {% endif %}
+        </div>
+        <div class="d-flex gap-2 flex-shrink-0">
+          <!-- Toggle done/undone -->
+          <form
+            action="/notes/{{ note.id }}/toggle"
+            method="post"
+            class="d-inline"
+          >
+            <button
+              class="btn {% if note.is_done %}btn-warning-pro{% else %}btn-success-pro{% endif %} btn-outline-pro"
+              type="submit"
+            >
+              {% if note.is_done %}
+              <i class="fas fa-undo-alt me-1"></i> Undo {% else %}
+              <i class="fas fa-check me-1"></i> Done {% endif %}
+            </button>
+          </form>
+          <!-- Delete -->
+          <form
+            action="/notes/{{ note.id }}/delete"
+            method="post"
+            class="d-inline"
+          >
+            <button
+              class="btn btn-danger-pro btn-outline-pro"
+              type="submit"
+              onclick="return confirm('Delete this note permanently?');"
+            >
+              <i class="fas fa-trash-alt me-1"></i> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <!-- elegant empty state -->
+  <div class="empty-state text-center">
+    <i class="fas fa-journal-whills"></i>
+    <h6 class="fw-semibold mt-2" style="color: #2e4a4f">
+      Your notebook is quiet
+    </h6>
+    <p class="text-muted small mb-0">
+      Start by adding your first note above. <br />
+      Capture ideas, tasks, or reminders.
+    </p>
+  </div>
+  {% endif %}
+</main>
+
+<footer>
+  <div class="container-custom">
+    <i class="far fa-copyright me-1"></i> 2025 Notebook · secure & minimal
+  </div>
+</footer>
+{% endblock %}

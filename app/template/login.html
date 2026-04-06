@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Notebook{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <!-- Professional card matching dashboard style -->
+            <div class="card card-modern border-0">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-pen-fancy" style="font-size: 2.5rem; color: var(--primary);"></i>
+                        <h3 class="fw-semibold mt-3 mb-1" style="color: var(--text-dark);">Welcome Back</h3>
+                        <p class="text-muted small">Sign in to continue to Notebook</p>
+                    </div>
+
+                    {% if error %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert" style="border-radius: 16px; background-color: var(--danger-bg); border: none; color: var(--danger-text);">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if request.query_params.get('registered') %}
+                    <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 16px; background-color: var(--success-bg); border: none; color: var(--success-text);">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <div>Registered successfully! Please login.</div>
+                    </div>
+                    {% endif %}
+
+                    <form action="/login" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-secondary mb-1">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-0 bg-light" style="border-radius: 16px 0 0 16px;">
+                                    <i class="fas fa-envelope" style="color: var(--primary);"></i>
+                                </span>
+                                <input type="email" name="email" class="form-control form-control-clean" placeholder="hello@example.com" required style="border-left: none; padding-left: 0;">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-secondary mb-1">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-0 bg-light" style="border-radius: 16px 0 0 16px;">
+                                    <i class="fas fa-lock" style="color: var(--primary);"></i>
+                                </span>
+                                <input type="password" name="password" class="form-control form-control-clean" placeholder="••••••••" required style="border-left: none; padding-left: 0;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary-pro w-100 py-2">
+                            <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                        </button>
+                    </form>
+
+                    <hr class="my-4" style="opacity: 0.3;">
+
+                    <div class="text-center">
+                        <p class="text-muted small mb-0">
+                            Don't have an account? 
+                            <a href="/register" style="color: var(--primary); text-decoration: none; font-weight: 600;">Create one</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+    .form-control-clean:focus {
+        border-color: var(--primary);
+        box-shadow: none;
+    }
+    .input-group:focus-within .input-group-text {
+        border-color: var(--primary);
+    }
+</style>
+{% endblock %}
