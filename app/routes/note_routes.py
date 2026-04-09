@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Form
+from fastapi import APIRouter, Depends, Request, Form , Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -26,7 +26,9 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
 @router.get("/dashboard")
 def dashboard(
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    limit: int = Query(2),
+    offset: int = Query(0)
 ):
     user_id = JWTHandler.get_current_user_id(request)
     if not user_id:
@@ -36,12 +38,16 @@ def dashboard(
     if not current_user:
         return RedirectResponse(url="/login", status_code=302)
 
-    notes = NoteService.get_all(db, current_user.id)
+    notes, total, has_next = NoteService.get_all(db, current_user.id, limit, offset)
     return templates.TemplateResponse(request, "dashboard.html", {
-        "request": request,
-        "user": current_user,
-        "notes": notes
-    })
+    "request": request,
+    "user": current_user,
+    "notes": notes,
+    "total": total,
+    "has_next": has_next,
+    "limit": limit,
+    "offset": offset
+})
 
 @router.post("/notes/create")
 def create_note(

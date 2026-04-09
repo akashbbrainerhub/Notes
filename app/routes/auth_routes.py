@@ -37,10 +37,15 @@ def register(
 
         return response
     except Exception as e:
-        return templates.TemplateResponse("register.html", {
-            "request": request,
-            "error": str(e)
-        })
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html",
+            context={
+                "request": request,
+                "error": str(e)
+            },
+            status_code=400
+        )
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):

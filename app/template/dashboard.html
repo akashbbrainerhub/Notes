@@ -79,7 +79,7 @@ block content %}
     <span
       class="badge rounded-pill"
       style="background: #e6edf0; color: #2c5f6e; font-weight: normal"
-      >{{ notes|length }} item{% if notes|length != 1 %}s{% endif %}</span
+      >{{ total }} item{% if notes|length != 1 %}s{% endif %}</span
     >
     {% endif %}
   </div>
@@ -167,6 +167,19 @@ block content %}
     </p>
   </div>
   {% endif %}
+  <div class="d-flex justify-content-between mt-4">
+  {% if offset > 0 %}
+  <a href="/dashboard?limit={{ limit }}&offset={{ offset - limit }}" class="btn btn-outline-secondary">
+    Previous
+  </a>
+  {% endif %}
+
+  {% if has_next %}
+  <a href="/dashboard?limit={{ limit }}&offset={{ offset + limit }}" class="btn btn-outline-secondary">
+    Next
+  </a>
+  {% endif %}
+</div>
 </main>
 
 <footer>

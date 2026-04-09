@@ -6,8 +6,13 @@ from uuid import UUID
 
 class NoteService:
     @staticmethod
-    def get_all(db: Session, user_id: UUID) -> list[Note]:
-        return db.query(Note).filter(Note.user_id == user_id).all()
+    def get_all(db: Session, user_id: UUID, limit: int, offset: int) -> tuple[list[Note], int, bool]:
+        query = db.query(Note).filter(Note.user_id == user_id)
+        total_notes = query.count()
+        notes = query.offset(offset).limit(limit).all()
+        has_next = (offset + limit) < total_notes
+        return notes, total_notes, has_next
+    
     
     @staticmethod
     def create(db: Session, data: NoteCreate, user_id: UUID) -> Note:

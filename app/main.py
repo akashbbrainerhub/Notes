@@ -7,7 +7,9 @@ import app.models.note_model
 
 app = FastAPI(title="My FastAPI App", version="1.0.0")
 
-Base.metadata.create_all(bind=engine)
+@app.on_event("startup")
+def on_startup() -> None:
+    Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_routes.router)
 app.include_router(note_routes.router)
