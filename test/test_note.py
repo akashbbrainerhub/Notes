@@ -133,7 +133,7 @@ def test_delete_note_redirects_to_dashboard(client: TestClient, monkeypatch):
     assert called["user_id"] == user_id
 
 
-def test_add_note():    
+def test_add_note(client:TestClient, monkeypatch):    
     login_response = client.post("/login", data={
         "email":"akashsoni@gmail.com",
         "password": "Admin@123"

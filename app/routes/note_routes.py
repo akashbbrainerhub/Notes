@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request, Form , Query
-from fastapi.responses import HTMLResponse, RedirectResponse
+from typing import Optional
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.database.connection import get_db
@@ -9,10 +10,15 @@ from app.models.user_model import User
 from app.models.note_model import Note
 from uuid import UUID
 from fastapi import HTTPException
+from fastapi_pagination.limit_offset import LimitOffsetParams
 
 router = APIRouter(tags=["Notes"])
 templates = Jinja2Templates(directory="app/template")
 
+class CustomParams(LimitOffsetParams):
+    limit: int = 2
+    offset: int = 0
+    
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     user_id = JWTHandler.get_current_user_id(request)
     if not user_id:
@@ -27,8 +33,11 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
 def dashboard(
     request: Request,
     db: Session = Depends(get_db),
-    limit: int = Query(2),
-    offset: int = Query(0)
+    params: CustomParams = Depends(),
+    search: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    sort_by: str = Query("created_at"),
+    order: str = Query("desc"),
 ):
     user_id = JWTHandler.get_current_user_id(request)
     if not user_id:
@@ -38,15 +47,29 @@ def dashboard(
     if not current_user:
         return RedirectResponse(url="/login", status_code=302)
 
-    notes, total, has_next = NoteService.get_all(db, current_user.id, limit, offset)
+    page = NoteService.get_all(
+        db,
+        current_user.id,
+        params,
+        sort_by,
+        order,
+        search,
+        status,
+    )
+    has_next = (params.offset + params.limit) < page.total
+
     return templates.TemplateResponse(request, "dashboard.html", {
     "request": request,
     "user": current_user,
-    "notes": notes,
-    "total": total,
+    "notes": page.items,
+    "total": page.total,
     "has_next": has_next,
-    "limit": limit,
-    "offset": offset
+    "limit": params.limit,
+    "offset": params.offset,
+    "search": search or "",
+    "status": status or "",
+    "sort_by": sort_by,
+    "order": order.lower(),
 })
 
 @router.post("/notes/create")

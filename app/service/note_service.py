@@ -3,15 +3,37 @@ from app.schemas.note_schema import NoteCreate, NoteUpdate
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
+from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination.limit_offset import LimitOffsetPage, LimitOffsetParams
+from sqlalchemy import asc, desc
 
 class NoteService:
     @staticmethod
-    def get_all(db: Session, user_id: UUID, limit: int, offset: int) -> tuple[list[Note], int, bool]:
+    def get_all(
+        db: Session, 
+        user_id: UUID, 
+        params: LimitOffsetParams, 
+        sort_by: str, 
+        order: str,
+        search: str = None,
+        status: str = None, 
+    ) -> LimitOffsetPage[Note]:
+        
         query = db.query(Note).filter(Note.user_id == user_id)
-        total_notes = query.count()
-        notes = query.offset(offset).limit(limit).all()
-        has_next = (offset + limit) < total_notes
-        return notes, total_notes, has_next
+        if search:
+            query = query.filter(Note.title.ilike(f"%{search}%"))
+        if status:
+            if status == "done":
+                query = query.filter(Note.is_done == True)
+            elif status == "pending":
+                query = query.filter(Note.is_done == False)
+        sort_column = getattr(Note, sort_by, Note.created_at)
+
+        if order.lower() == "asc":
+            query = query.order_by(asc(sort_column))
+        else:
+            query = query.order_by(desc(sort_column))
+        return paginate(db, query, params)
     
     
     @staticmethod
