@@ -16,7 +16,7 @@ router = APIRouter(tags=["Notes"])
 templates = Jinja2Templates(directory="app/template")
 
 class CustomParams(LimitOffsetParams):
-    limit: int = 2
+    limit: int = 5
     offset: int = 0
     
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
